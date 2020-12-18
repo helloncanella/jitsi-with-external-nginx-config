@@ -7,22 +7,31 @@ server {
 
     server_name ${SERVER_NAME};
 
-    client_max_body_size ${FILE_MAX_SIZE_IN_MB}m;
-
     location / {
-      proxy_pass http://${INTERNAL_IP}:${CLIENT_PORT};
-      proxy_http_version 1.1;
+      ssi on;
+      proxy_pass http://meet.jitsi;
+      proxy_set_header X-Forwarded-For $remote_addr;
+      proxy_set_header Host $http_host;
     }
 
-    location /graphql {
-      proxy_pass http://${INTERNAL_IP}:${GRAPHQL_PORT}/graphql;
-      proxy_http_version 1.1;
-      proxy_set_header Upgrade $http_upgrade;
-      proxy_set_header Connection 'upgrade';
-      proxy_set_header Host $host;
-      proxy_cache_bypass $http_upgrade;
+    # BOSH
+    location /http-bind {
+      proxy_pass http://xmpp.meet.jitsi:5280/http-bind;
+      proxy_set_header X-Forwarded-For $remote_addr;
+      proxy_set_header Host $http_host;
     }
-  
+
+    # xmpp websockets
+    location /xmpp-websocket {
+      proxy_pass              http://xmpp.meet.jitsi:5280/xmpp-websocket;
+      proxy_http_version      1.1;
+      proxy_set_header        Upgrade $http_upgrade;
+      proxy_set_header        Connection "upgrade";
+      proxy_set_header        Host $host;
+      tcp_nodelay             on;
+    }
+
+
     # redirect server error pages to the static page /50x.html
     #
     error_page   500 502 503 504  /50x.html;
