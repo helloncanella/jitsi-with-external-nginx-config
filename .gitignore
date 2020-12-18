@@ -1,0 +1,6 @@
+.env
+nginx/certs/*
+nginx/private/*
+.env
+.env.bak
+docker-compose.override.yml

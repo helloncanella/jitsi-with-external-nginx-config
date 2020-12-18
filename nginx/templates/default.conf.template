@@ -1,0 +1,42 @@
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+
+    ssl_certificate /etc/ssl/certs/${SSL_CERTIFICATE};
+    ssl_certificate_key /etc/ssl/private/${SSL_CERTIFICATE_KEY};
+
+    server_name ${SERVER_NAME};
+
+    client_max_body_size ${FILE_MAX_SIZE_IN_MB}m;
+
+    location / {
+      proxy_pass http://${INTERNAL_IP}:${CLIENT_PORT};
+      proxy_http_version 1.1;
+    }
+
+    location /graphql {
+      proxy_pass http://${INTERNAL_IP}:${GRAPHQL_PORT}/graphql;
+      proxy_http_version 1.1;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection 'upgrade';
+      proxy_set_header Host $host;
+      proxy_cache_bypass $http_upgrade;
+    }
+  
+    # redirect server error pages to the static page /50x.html
+    #
+    error_page   500 502 503 504  /50x.html;
+    location = /50x.html {
+        root   /usr/share/nginx/html;
+    }
+
+}
+server {
+  if ($host = ${SERVER_NAME}) {
+        return 301 https://$host$request_uri;
+    }
+
+  listen 80 default_server;
+  server_name _;
+  return 301 https://$host$request_uri;
+}
