@@ -1,6 +1,6 @@
 .env
-nginx/certs/*
-nginx/private/*
+nginx/ssl/certs/*
+nginx/ssl/private/*
 .env
 .env.bak
 docker-compose.override.yml
