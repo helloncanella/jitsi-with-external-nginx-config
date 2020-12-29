@@ -1,0 +1,2 @@
+options snd-aloop enable=1,1,1,1,1 index=0,1,2,3,4 /etc/modprobe.d/alsa-loopback.conf
+snd-aloop /etc/modules
